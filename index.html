@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Media Studio | Professional Extraction</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030712;
+            --glass: rgba(17, 24, 39, 0.75);
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --accent: #22d3ee;
+            --text: #f8fafc;
+            --muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.15), transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(34, 211, 238, 0.15), transparent 45%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .app {
+            width: 100%;
+            max-width: 440px;
+            background: var(--glass);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 32px;
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.8);
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            text-align: center;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.025em;
+            background: linear-gradient(to right, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            color: white; /* Fallback */
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 28px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text);
+            font-size: 0.95rem;
+            outline: none;
+            margin-bottom: 20px;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--primary);
+            background: rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .mode-container {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 4px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            border-radius: 10px;
+            margin: 0;
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        #preview-card {
+            display: none;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 20px;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #preview-card img {
+            width: 100%;
+            border-radius: 12px;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            margin-bottom: 12px;
+            background: #000;
+        }
+
+        #previewTitle {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #mainBtn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.4);
+            margin-bottom: 24px;
+        }
+
+        #mainBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.5);
+        }
+
+        #mainBtn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar-bg {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        #progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            box-shadow: 0 0 12px rgba(99, 102, 241, 0.5);
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .status-container {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--muted);
+        }
+
+        #percent-text {
+            color: var(--primary);
+        }
+
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.65rem;
+            color: #4b5563;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="app">
+    <h2>Media Studio</h2>
+    <div class="subtitle">Studio Grade Extraction</div>
+
+    <input id="urlInput" placeholder="Paste YouTube URL here..." autocomplete="off">
+
+    <div id="preview-card">
+        <img id="previewThumb" alt="Media Thumbnail">
+        <div id="previewTitle"></div>
+        <div id="previewSize" style="color:var(--muted); font-size:12px; font-weight: 500;"></div>
+    </div>
+
+    <div class="mode-container">
+        <button id="videoMode" class="mode-btn active">VIDEO</button>
+        <button id="audioMode" class="mode-btn">AUDIO</button>
+    </div>
+
+    <select id="qualitySelect"></select>
+
+    <button id="mainBtn">
+        <span id="btnText">Initialize Download</span>
+        <span class="spinner" id="btnSpinner"></span>
+    </button>
+
+    <div class="progress-section">
+        <div class="status-container">
+            <span id="status-text">Ready</span>
+            <span id="percent-text">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+            <div id="progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="footer">@Aehamadmumiya</div>
+</div>
+
+<script>
+/* ---------------- STATE (Updated for High Quality) ---------------- */
+let currentMode = "video";
+const videoQualities = {
+    1080: "1080p Full HD",
+    720: "720p HD", 
+    480: "480p SD", 
+    360: "360p Mobile"
+};
+const audioQualities = {
+    320: "320kbps MP3 (Ultra)", 
+    256: "256kbps MP3 (High)",
+    192: "192kbps MP3 (Medium)", 
+    128: "128kbps MP3 (Economy)"
+};
+
+const elements = {
+    url: document.getElementById("urlInput"),
+    preview: document.getElementById("preview-card"),
+    thumb: document.getElementById("previewThumb"),
+    title: document.getElementById("previewTitle"),
+    size: document.getElementById("previewSize"),
+    quality: document.getElementById("qualitySelect"),
+    videoBtn: document.getElementById("videoMode"),
+    audioBtn: document.getElementById("audioMode"),
+    mainBtn: document.getElementById("mainBtn"),
+    btnText: document.getElementById("btnText"),
+    btnSpinner: document.getElementById("btnSpinner"),
+    status: document.getElementById("status-text"),
+    percent: document.getElementById("percent-text"),
+    progress: document.getElementById("progress-fill")
+};
+
+/* ---------------- UI ---------------- */
+function updateQuality(){
+    const src = currentMode==="video" ? videoQualities : audioQualities;
+    elements.quality.innerHTML = Object.entries(src)
+        .map(([v,l])=>`<option value="${v}">${l}</option>`).join("");
+}
+updateQuality();
+
+elements.videoBtn.onclick = ()=>{
+    currentMode="video";
+    elements.videoBtn.classList.add("active");
+    elements.audioBtn.classList.remove("active");
+    updateQuality();
+};
+elements.audioBtn.onclick = ()=>{
+    currentMode="audio";
+    elements.audioBtn.classList.add("active");
+    elements.videoBtn.classList.remove("active");
+    updateQuality();
+};
+
+function updateProgress(p,msg){
+    elements.progress.style.width=p+"%";
+    elements.percent.innerText=p+"%";
+    if(msg) elements.status.innerText=msg;
+}
+
+/* ---------------- FETCH INFO ---------------- */
+let timer;
+elements.url.oninput = ()=>{
+    clearTimeout(timer);
+    timer = setTimeout(fetchInfo,700);
+};
+
+async function fetchInfo(){
+    const url = elements.url.value.trim();
+    if(!url) return;
+
+    try{
+        const res = await fetch("http://localhost:5000/info",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({url})
+        });
+        const data = await res.json();
+        elements.thumb.src=data.thumbnail;
+        elements.title.innerText=data.title;
+        elements.size.innerText="File Size: "+data.size;
+        elements.preview.style.display="block";
+        elements.status.innerText="Media detected";
+    }catch{
+        elements.preview.style.display="none";
+        // Silent fail or low-key error for checking
+        elements.status.innerText="Waiting for connection...";
+    }
+}
+
+/* ---------------- DOWNLOAD ---------------- */
+elements.mainBtn.onclick = async ()=>{
+    const url = elements.url.value.trim();
+    if(!url) return;
+
+    elements.mainBtn.disabled=true;
+    elements.btnSpinner.style.display="inline-block";
+    elements.btnText.innerText="Processing...";
+    updateProgress(5,"Starting stream");
+
+    try{
+        const res = await fetch("http://localhost:5000/download",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                url,
+                mode:currentMode,
+                quality:elements.quality.value
+            })
+        });
+
+        if(!res.ok) throw new Error();
+
+        updateProgress(40,"Receiving data");
+
+        // Try to get filename from Content-Disposition header
+        let filename = (currentMode === "audio" ? "audio.mp3" : "video.mp4");
+        const disposition = res.headers.get('Content-Disposition');
+        
+        if (disposition && disposition.includes('attachment')) {
+            const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            const matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) { 
+                filename = matches[1].replace(/['"]/g, '');
+            }
+        }
+
+        const blob = await res.blob();
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        updateProgress(100,"Success: Downloaded");
+        elements.status.style.color = "#10b981";
+    }catch{
+        elements.status.innerText="Download failed (No Backend)";
+        elements.status.style.color = "#ef4444";
+    }finally{
+        elements.mainBtn.disabled=false;
+        elements.btnSpinner.style.display="none";
+        elements.btnText.innerText="Initialize Download";
+    }
+};
+</script>
+
+</body>
+</html>
